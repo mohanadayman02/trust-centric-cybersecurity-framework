@@ -1,0 +1,125 @@
+========================================================
+FINAL CONSOLIDATED RESULTS
+========================================================
+
+## DATASET: NSL-KDD
+
+BehavioralAnalysisAgent
+Test Accuracy  : 99.68%
+Test Precision : 99.43%
+Test Recall    : 99.89%
+Test F1        : 99.66%
+
+TrafficAnalysisAgent
+Test Accuracy  : 99.64%
+Test Precision : 99.37%
+Test Recall    : 99.88%
+Test F1        : 99.62%
+
+FinalResolvedMultiAgent
+Test Accuracy  : 99.70%
+Test Precision : 99.53%
+Test Recall    : 99.84%
+Test F1        : 99.69%
+
+Interaction
+Agreements       : 44176
+Disagreements    : 191
+Contested Cases  : 64
+Agreement Rate   : 99.57%
+Disagreement Rate: 0.43%
+
+---
+
+## DATASET: UNSW-NB15
+
+BehavioralAnalysisAgent
+Test Accuracy  : 88.47%
+Test Precision : 81.38%
+Test Recall    : 95.95%
+Test F1        : 88.07%
+
+TrafficAnalysisAgent
+Test Accuracy  : 88.06%
+Test Precision : 81.89%
+Test Recall    : 93.82%
+Test F1        : 87.45%
+
+FinalResolvedMultiAgent
+Test Accuracy  : 89.02%
+Test Precision : 83.45%
+Test Recall    : 93.86%
+Test F1        : 88.35%
+
+Interaction
+Agreements       : 43016
+Disagreements    : 2965
+Contested Cases  : 1795
+Agreement Rate   : 93.55%
+Disagreement Rate: 6.45%
+
+---
+
+## DATASET: CICIDS2017
+
+BehavioralAnalysisAgent
+Test Accuracy  : 99.77%
+Test Precision : 99.41%
+Test Recall    : 99.25%
+Test F1        : 99.33%
+
+TrafficAnalysisAgent
+Test Accuracy  : 99.25%
+Test Precision : 97.07%
+Test Recall    : 98.52%
+Test F1        : 97.79%
+
+FinalResolvedMultiAgent
+Test Accuracy  : 99.77%
+Test Precision : 99.41%
+Test Recall    : 99.25%
+Test F1        : 99.33%
+
+Interaction
+Agreements       : 750998
+Disagreements    : 5292
+Contested Cases  : 453
+Agreement Rate   : 99.30%
+Disagreement Rate: 0.70%
+
+---
+
+========================================================
+BEST MODEL PER DATASET
+========================================================
+
+NSL-KDD        -> FinalResolvedMultiAgent
+UNSW-NB15      -> FinalResolvedMultiAgent
+CICIDS2017     -> BehavioralAnalysisAgent
+
+========================================================
+FINAL MULTI-AGENT COMPARISON
+========================================================
+
+Dataset      Behavioral F1   Traffic F1   Final Multi-Agent F1  
+NSL-KDD      99.66%          99.62%       99.69%                
+UNSW-NB15    88.07%          87.45%       88.35%                
+CICIDS2017   99.33%          97.79%       99.33%                
+
+========================================================
+RUN STATUS
+========================================================
+
+NSL-KDD        -> SUCCESS
+UNSW-NB15      -> SUCCESS
+CICIDS2017     -> SUCCESS
+
+========================================================
+HIGH-LEVEL OBSERVATIONS
+========================================================
+
+* BehavioralAnalysisAgent achieved the strongest Test F1 on 1/3 dataset(s).
+* FinalResolvedMultiAgent matched or improved over TrafficAnalysisAgent on all reported datasets.
+* FinalResolvedMultiAgent remained competitive with BehavioralAnalysisAgent across reported datasets.
+* Current interaction logic supports multi-agent resolution and contest tracking for thesis analysis.
+

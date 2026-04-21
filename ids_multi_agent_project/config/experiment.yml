@@ -1,0 +1,69 @@
+experiment:
+  name: ids_two_agents_validation
+  random_state: 42
+
+datasets:
+  - name: NSL-KDD
+    path: data/nsl_kdd.csv
+    label_column: label
+    categorical_columns: [protocol_type, service, flag]
+
+  - name: UNSW-NB15
+    path: data/unsw_nb15.csv
+    label_column: label
+    categorical_columns: [proto, service, state]
+
+  - name: CICIDS2017
+    path: data/cicids2017.csv
+    label_column: label
+    categorical_columns: []
+
+agents:
+  agent1:
+    model: RandomForest
+    params:
+      n_estimators: 100
+      max_depth: 10
+      random_state: 42
+
+  agent2:
+    model: SVC
+    params:
+      kernel: rbf
+      C: 1.0
+      gamma: scale
+      probability: true
+      random_state: 42
+
+preprocessing:
+  binary_classification: true
+  normal_label_values: ["normal", "Normal", 0]
+  scale_numeric_features: true
+  encode_categorical_features: true
+  handle_missing_values: true
+  test_size: 0.3
+
+interaction:
+  disagreement_confidence_threshold: 0.10
+  trust_weight_global: 0.5
+  trust_weight_confidence: 0.3
+  trust_weight_disagreement: 0.2
+  trust_gap_threshold: 0.05
+
+validation:
+  cross_validation_folds: 5
+
+metrics:
+  - accuracy
+  - precision
+  - recall
+  - f1
+
+agentic_reasoning:
+  ollama_enabled: true
+  ollama_model_name: llama3.1:8b
+  ollama_base_url: http://localhost:11434
+  ollama_timeout_seconds: 15
+  max_reasoning_samples_per_dataset: 50
+  enable_agent_reasoning_output: true
+  reasoning_scope: disagreement_only
