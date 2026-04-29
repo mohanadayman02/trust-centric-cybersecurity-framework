@@ -1,6 +1,31 @@
 experiment:
-  name: ids_two_agents_validation
+  name: louati_ktata_multi_agent_baseline
   random_state: 42
+
+run_mode: feature_view_multi_agent
+dataset: NSL-KDD
+classification: binary
+num_agents: 4
+feature_views:
+  enabled: true
+  views:
+    - basic
+    - content
+    - time_traffic
+    - host_traffic
+use_autoencoder: false
+use_trust_layer: false
+use_attention: false
+decision_strategy: majority_vote
+cross_validation: false
+
+baseline:
+  dataset: NSL-KDD
+  use_autoencoder: true
+  agents: [mlp, knn]
+  decision_strategy: knn_tiebreak
+  use_trust_layer: false
+  cross_validation: false
 
 datasets:
   - name: NSL-KDD
@@ -8,32 +33,26 @@ datasets:
     label_column: label
     categorical_columns: [protocol_type, service, flag]
 
-  - name: UNSW-NB15
-    path: data/unsw_nb15.csv
-    label_column: label
-    categorical_columns: [proto, service, state]
-
-  - name: CICIDS2017
-    path: data/cicids2017.csv
-    label_column: label
-    categorical_columns: []
-
-agents:
-  agent1:
-    model: RandomForest
-    params:
-      n_estimators: 100
-      max_depth: 10
-      random_state: 42
-
-  agent2:
-    model: SVC
-    params:
-      kernel: rbf
-      C: 1.0
-      gamma: scale
-      probability: true
-      random_state: 42
+models:
+  autoencoder:
+    encoding_dim: 32
+    activation: tanh
+    alpha: 0.001
+    learning_rate_init: 0.0003
+    max_iter: 120
+    early_stopping: true
+    random_state: 42
+  mlp:
+    hidden_layer_sizes: [64, 32]
+    activation: tanh
+    alpha: 0.001
+    learning_rate_init: 0.0003
+    early_stopping: true
+    max_iter: 300
+    random_state: 42
+  knn:
+    n_neighbors: 5
+    weights: distance
 
 preprocessing:
   binary_classification: true
@@ -42,13 +61,6 @@ preprocessing:
   encode_categorical_features: true
   handle_missing_values: true
   test_size: 0.3
-
-interaction:
-  disagreement_confidence_threshold: 0.10
-  trust_weight_global: 0.5
-  trust_weight_confidence: 0.3
-  trust_weight_disagreement: 0.2
-  trust_gap_threshold: 0.05
 
 validation:
   cross_validation_folds: 5
@@ -60,10 +72,10 @@ metrics:
   - f1
 
 agentic_reasoning:
-  ollama_enabled: true
+  ollama_enabled: false
   ollama_model_name: llama3.1:8b
   ollama_base_url: http://localhost:11434
   ollama_timeout_seconds: 15
   max_reasoning_samples_per_dataset: 50
-  enable_agent_reasoning_output: true
+  enable_agent_reasoning_output: false
   reasoning_scope: disagreement_only

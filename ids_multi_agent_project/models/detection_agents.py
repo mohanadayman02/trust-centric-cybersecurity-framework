@@ -10,6 +10,8 @@ from urllib import request as urllib_request
 
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neural_network import MLPClassifier, MLPRegressor
 from sklearn.svm import SVC
 
 
@@ -413,3 +415,98 @@ class TrafficAnalysisAgent(BaseDetectionAgent):
 RandomForestAgent = BehavioralAnalysisAgent
 SVMAgent = TrafficAnalysisAgent
 LogisticRegressionAgent = TrafficAnalysisAgent
+
+
+class AutoencoderAgent:
+    """Autoencoder-like feature reducer implemented with a shallow MLP regressor."""
+
+    def __init__(self, params: Dict[str, Any] | None = None) -> None:
+        model_params = dict(params or {})
+        self.encoding_dim = int(model_params.get("encoding_dim", 16))
+        self.activation = str(model_params.get("activation", "tanh"))
+        self.model = MLPRegressor(
+            hidden_layer_sizes=(self.encoding_dim,),
+            activation=self.activation,
+            solver=str(model_params.get("solver", "adam")),
+            alpha=float(model_params.get("alpha", 0.001)),
+            learning_rate_init=float(model_params.get("learning_rate_init", 0.0003)),
+            max_iter=int(model_params.get("max_iter", 80)),
+            random_state=int(model_params.get("random_state", 42)),
+            early_stopping=bool(model_params.get("early_stopping", True)),
+        )
+
+    @staticmethod
+    def _activate(values: np.ndarray, activation: str) -> np.ndarray:
+        name = str(activation).lower()
+        if name == "identity":
+            return values
+        if name == "tanh":
+            return np.tanh(values)
+        if name == "logistic":
+            return 1.0 / (1.0 + np.exp(-values))
+        # Default to ReLU to mirror sklearn MLP behavior.
+        return np.maximum(values, 0.0)
+
+    def fit(self, x_train, y_train=None) -> "AutoencoderAgent":
+        x_arr = np.asarray(x_train, dtype=np.float64)
+        x_arr = np.nan_to_num(x_arr, nan=0.0, posinf=0.0, neginf=0.0)
+        self.model.fit(x_arr, x_arr)
+        return self
+
+    def transform(self, x):
+        x_arr = np.asarray(x, dtype=np.float64)
+        x_arr = np.nan_to_num(x_arr, nan=0.0, posinf=0.0, neginf=0.0)
+        hidden_linear = np.dot(x_arr, self.model.coefs_[0]) + self.model.intercepts_[0]
+        hidden_linear = np.clip(hidden_linear, -1e6, 1e6)
+        encoded = self._activate(hidden_linear, self.model.activation)
+        encoded = np.nan_to_num(encoded, nan=0.0, posinf=0.0, neginf=0.0)
+        return np.asarray(encoded, dtype=np.float64)
+
+    def fit_transform(self, x_train):
+        self.fit(x_train)
+        return self.transform(x_train)
+
+
+class MLPAgent(BaseDetectionAgent):
+    """MLP classifier agent for encoded feature-space intrusion detection."""
+
+    def __init__(
+        self,
+        params: Dict[str, Any] | None = None,
+        reasoning_config: Dict[str, Any] | None = None,
+    ) -> None:
+        model_params = dict(params or {})
+        model_params.setdefault("random_state", 42)
+        model_params.setdefault("max_iter", 300)
+        model_params.setdefault("hidden_layer_sizes", (64, 32))
+        model_params.setdefault("activation", "tanh")
+        model_params.setdefault("alpha", 0.001)
+        model_params.setdefault("learning_rate_init", 0.0003)
+        model_params.setdefault("early_stopping", True)
+        super().__init__(
+            agent_name="MLPAgent",
+            role="mlp_classification",
+            backbone_model="MLPClassifier",
+            model=MLPClassifier(**model_params),
+            reasoning_config=reasoning_config,
+        )
+
+
+class KNNAgent(BaseDetectionAgent):
+    """KNN classifier agent for encoded feature-space intrusion detection."""
+
+    def __init__(
+        self,
+        params: Dict[str, Any] | None = None,
+        reasoning_config: Dict[str, Any] | None = None,
+    ) -> None:
+        model_params = dict(params or {})
+        model_params.setdefault("n_neighbors", 5)
+        model_params.setdefault("weights", "distance")
+        super().__init__(
+            agent_name="KNNAgent",
+            role="knn_classification",
+            backbone_model="KNeighborsClassifier",
+            model=KNeighborsClassifier(**model_params),
+            reasoning_config=reasoning_config,
+        )
