@@ -26,6 +26,37 @@ from sklearn.svm import SVC
 
 DEFAULT_DATA_PATH = Path("data/unsw_nb15.csv")
 DEFAULT_OUTPUT_PATH = Path("unsw_experiment_results.csv")
+BEHAVIORAL_FEATURE_CANDIDATES = [
+    "service",
+    "state",
+    "dur",
+    "sbytes",
+    "dbytes",
+    "sttl",
+    "dttl",
+    "sinpkt",
+    "dinpkt",
+    "sjit",
+    "djit",
+    "sload",
+    "dload",
+    "spkts",
+    "dpkts",
+]
+TRAFFIC_FEATURE_CANDIDATES = [
+    "proto",
+    "sport",
+    "dsport",
+    "ct_state_ttl",
+    "ct_srv_src",
+    "ct_srv_dst",
+    "ct_dst_ltm",
+    "ct_src_ltm",
+    "ct_src_dport_ltm",
+    "ct_dst_sport_ltm",
+    "ct_dst_src_ltm",
+    "is_sm_ips_ports",
+]
 
 
 class BehavioralAgent:
@@ -278,11 +309,17 @@ def run_traffic_agent(
     return agent, evaluate(y_test, y_pred, y_prob)
 
 
-def run_multi_agent(behavioral_agent: BehavioralAgent, traffic_agent: TrafficAgent, X_test: np.ndarray, y_test: np.ndarray):
-    pred_behavioral = behavioral_agent.predict(X_test)
-    pred_traffic = traffic_agent.predict(X_test)
-    prob_behavioral = behavioral_agent.predict_proba(X_test)
-    prob_traffic = traffic_agent.predict_proba(X_test)
+def run_multi_agent(
+    behavioral_agent: BehavioralAgent,
+    traffic_agent: TrafficAgent,
+    X_test_behavioral: np.ndarray,
+    X_test_traffic: np.ndarray,
+    y_test: np.ndarray,
+):
+    pred_behavioral = behavioral_agent.predict(X_test_behavioral)
+    pred_traffic = traffic_agent.predict(X_test_traffic)
+    prob_behavioral = behavioral_agent.predict_proba(X_test_behavioral)
+    prob_traffic = traffic_agent.predict_proba(X_test_traffic)
 
     avg_prob = (prob_behavioral + prob_traffic) / 2.0
     final_pred = (avg_prob >= 0.5).astype(int)
@@ -299,15 +336,16 @@ def run_multi_agent(behavioral_agent: BehavioralAgent, traffic_agent: TrafficAge
 def run_trust_layer(
     behavioral_agent: BehavioralAgent,
     traffic_agent: TrafficAgent,
-    X_test: np.ndarray,
+    X_test_behavioral: np.ndarray,
+    X_test_traffic: np.ndarray,
     y_test: np.ndarray,
     trust_behavioral: float,
     trust_traffic: float,
 ):
-    pred_behavioral = behavioral_agent.predict(X_test)
-    pred_traffic = traffic_agent.predict(X_test)
-    prob_behavioral = behavioral_agent.predict_proba(X_test)
-    prob_traffic = traffic_agent.predict_proba(X_test)
+    pred_behavioral = behavioral_agent.predict(X_test_behavioral)
+    pred_traffic = traffic_agent.predict(X_test_traffic)
+    prob_behavioral = behavioral_agent.predict_proba(X_test_behavioral)
+    prob_traffic = traffic_agent.predict_proba(X_test_traffic)
 
     denom = trust_behavioral + trust_traffic
     if denom == 0:
@@ -328,6 +366,10 @@ def run_trust_layer(
 
 def _class_distribution(y: pd.Series) -> Dict[int, int]:
     return y.value_counts().sort_index().to_dict()
+
+
+def _select_existing_features(df: pd.DataFrame, candidates: List[str]) -> List[str]:
+    return [feature for feature in candidates if feature in df.columns]
 
 
 def main() -> None:
@@ -367,6 +409,29 @@ def main() -> None:
     print("[DEBUG] train class distribution:", _class_distribution(y_train_s), flush=True)
     print("[DEBUG] test class distribution:", _class_distribution(y_test_s), flush=True)
 
+    behavioral_features = _select_existing_features(X_train_raw, BEHAVIORAL_FEATURE_CANDIDATES)
+    traffic_features = _select_existing_features(X_train_raw, TRAFFIC_FEATURE_CANDIDATES)
+    print("[DEBUG] behavioral selected features:", behavioral_features, flush=True)
+    print("[DEBUG] traffic selected features:", traffic_features, flush=True)
+
+    if not behavioral_features:
+        raise ValueError("No behavioral candidate features were found in the dataset.")
+    if not traffic_features:
+        raise ValueError("No traffic candidate features were found in the dataset.")
+
+    X_train_behavioral_raw = X_train_raw[behavioral_features].copy()
+    X_test_behavioral_raw = X_test_raw[behavioral_features].copy()
+    X_train_traffic_raw = X_train_raw[traffic_features].copy()
+    X_test_traffic_raw = X_test_raw[traffic_features].copy()
+
+    print("[START] Preprocessing behavioral subset (train-only fit)...", flush=True)
+    X_train_behavioral, X_test_behavioral, _ = preprocess(X_train_behavioral_raw, X_test_behavioral_raw)
+    print("[OK] Behavioral subset preprocessing complete", flush=True)
+
+    print("[START] Preprocessing traffic subset (train-only fit)...", flush=True)
+    X_train_traffic, X_test_traffic, _ = preprocess(X_train_traffic_raw, X_test_traffic_raw)
+    print("[OK] Traffic subset preprocessing complete", flush=True)
+
     results: List[Dict[str, float]] = []
 
     print("[STAGE 1/6] Training SVM...", flush=True)
@@ -380,17 +445,33 @@ def main() -> None:
     print("[STAGE 2/6] Done", flush=True)
 
     print("[STAGE 3/6] Running Behavioral Agent...", flush=True)
-    behavioral_agent, behavioral_metrics = run_behavioral_agent(X_train, X_test, y_train, y_test)
+    behavioral_agent, behavioral_metrics = run_behavioral_agent(
+        X_train_behavioral,
+        X_test_behavioral,
+        y_train,
+        y_test,
+    )
     results.append({"stage": "Stage 3 - Behavioral Agent", **behavioral_metrics})
     print("[STAGE 3/6] Done", flush=True)
 
     print("[STAGE 4/6] Running Traffic Agent...", flush=True)
-    traffic_agent, traffic_metrics = run_traffic_agent(X_train, X_test, y_train, y_test)
+    traffic_agent, traffic_metrics = run_traffic_agent(
+        X_train_traffic,
+        X_test_traffic,
+        y_train,
+        y_test,
+    )
     results.append({"stage": "Stage 4 - Traffic Agent", **traffic_metrics})
     print("[STAGE 4/6] Done", flush=True)
 
     print("[STAGE 5/6] Running Multi-Agent without trust...", flush=True)
-    multi_agent_metrics = run_multi_agent(behavioral_agent, traffic_agent, X_test, y_test)
+    multi_agent_metrics = run_multi_agent(
+        behavioral_agent,
+        traffic_agent,
+        X_test_behavioral,
+        X_test_traffic,
+        y_test,
+    )
     results.append({"stage": "Stage 5 - Multi-Agent (No Trust)", **multi_agent_metrics})
     print("[STAGE 5/6] Done", flush=True)
 
@@ -400,7 +481,8 @@ def main() -> None:
     trust_metrics = run_trust_layer(
         behavioral_agent,
         traffic_agent,
-        X_test,
+        X_test_behavioral,
+        X_test_traffic,
         y_test,
         trust_behavioral=trust_behavioral,
         trust_traffic=trust_traffic,

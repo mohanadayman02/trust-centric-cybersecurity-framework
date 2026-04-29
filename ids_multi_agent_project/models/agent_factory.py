@@ -5,11 +5,16 @@ from __future__ import annotations
 from typing import Any, Dict
 
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 
 from models.detection_agents import (
+    AutoencoderAgent,
     BehavioralAnalysisAgent,
+    KNNAgent,
+    MLPAgent,
     TrafficAnalysisAgent,
     normalize_traffic_svm_params,
 )
@@ -18,6 +23,12 @@ from models.detection_agents import (
 def create_agent(model_name: str, params: Dict[str, Any] | None = None):
     """Create and return an sklearn classifier based on the given model name."""
     supported_models = {
+        "Autoencoder": AutoencoderAgent,
+        "AutoencoderAgent": AutoencoderAgent,
+        "MLP": MLPClassifier,
+        "MLPAgent": MLPClassifier,
+        "KNN": KNeighborsClassifier,
+        "KNNAgent": KNeighborsClassifier,
         "RandomForest": RandomForestClassifier,
         "SVC": SVC,
         "SVM": SVC,
@@ -36,6 +47,15 @@ def create_agent(model_name: str, params: Dict[str, Any] | None = None):
     if model_name in {"SVC", "SVM"}:
         model_params = normalize_traffic_svm_params(model_params)
 
+    if model_name in {"MLP", "MLPAgent"}:
+        model_params.setdefault("random_state", 42)
+        model_params.setdefault("max_iter", 300)
+        model_params.setdefault("hidden_layer_sizes", (64, 32))
+
+    if model_name in {"KNN", "KNNAgent"}:
+        model_params.setdefault("n_neighbors", 5)
+        model_params.setdefault("weights", "distance")
+
     return model_class(**model_params)
 
 
@@ -48,6 +68,12 @@ def create_detection_agent(
     model_params = dict(params or {})
 
     detection_agents = {
+        "Autoencoder": AutoencoderAgent,
+        "AutoencoderAgent": AutoencoderAgent,
+        "MLP": MLPAgent,
+        "MLPAgent": MLPAgent,
+        "KNN": KNNAgent,
+        "KNNAgent": KNNAgent,
         "RandomForest": BehavioralAnalysisAgent,
         "SVC": TrafficAnalysisAgent,
         "SVM": TrafficAnalysisAgent,
@@ -60,5 +86,8 @@ def create_detection_agent(
         raise ValueError(
             f"Unsupported detection agent '{model_name}'. Supported models: {supported}"
         )
+
+    if model_name in {"Autoencoder", "AutoencoderAgent"}:
+        return detection_agents[model_name](model_params)
 
     return detection_agents[model_name](model_params, reasoning_config=reasoning_config)
