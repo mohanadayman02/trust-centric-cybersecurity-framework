@@ -1,0 +1,5 @@
+decision_source,role,agent_reliability_score,trust_weight
+General Traffic Agent,general,0.9997982212426467,0.2589714534152848
+Attack Recall Agent,attack_recall,0.8957679036687557,0.23202513367900898
+Normal Behavior Agent,normal_behavior,0.9997826761875194,0.25896742687729524
+Hard-Case Agent,hard_case,0.9653015063285048,0.25003598602841104

@@ -1,4 +1,8 @@
-"""Factory module for creating IDS agent models."""
+"""Factory module for creating IDS model wrappers (decision sources).
+
+This module preserves backward-compatible names (agent_factory) but exposes
+model/decision-source creation for the trust-centric framework.
+"""
 
 from __future__ import annotations
 

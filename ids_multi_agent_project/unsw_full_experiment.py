@@ -444,27 +444,27 @@ def main() -> None:
     results.append({"stage": "Stage 2 - Logistic Regression", **lr_metrics})
     print("[STAGE 2/6] Done", flush=True)
 
-    print("[STAGE 3/6] Running Behavioral Agent...", flush=True)
+    print("[STAGE 3/6] Running Behavioral Model...", flush=True)
     behavioral_agent, behavioral_metrics = run_behavioral_agent(
         X_train_behavioral,
         X_test_behavioral,
         y_train,
         y_test,
     )
-    results.append({"stage": "Stage 3 - Behavioral Agent", **behavioral_metrics})
+    results.append({"stage": "Stage 3 - Behavioral Model", **behavioral_metrics})
     print("[STAGE 3/6] Done", flush=True)
 
-    print("[STAGE 4/6] Running Traffic Agent...", flush=True)
+    print("[STAGE 4/6] Running Traffic Model...", flush=True)
     traffic_agent, traffic_metrics = run_traffic_agent(
         X_train_traffic,
         X_test_traffic,
         y_train,
         y_test,
     )
-    results.append({"stage": "Stage 4 - Traffic Agent", **traffic_metrics})
+    results.append({"stage": "Stage 4 - Traffic Model", **traffic_metrics})
     print("[STAGE 4/6] Done", flush=True)
 
-    print("[STAGE 5/6] Running Multi-Agent without trust...", flush=True)
+    print("[STAGE 5/6] Running Multi-Source ensemble without trust...", flush=True)
     multi_agent_metrics = run_multi_agent(
         behavioral_agent,
         traffic_agent,
@@ -472,10 +472,10 @@ def main() -> None:
         X_test_traffic,
         y_test,
     )
-    results.append({"stage": "Stage 5 - Multi-Agent (No Trust)", **multi_agent_metrics})
+    results.append({"stage": "Stage 5 - Multi-Source (No Trust)", **multi_agent_metrics})
     print("[STAGE 5/6] Done", flush=True)
 
-    print("[STAGE 6/6] Running Multi-Agent with trust...", flush=True)
+    print("[STAGE 6/6] Running Multi-Source with trust...", flush=True)
     trust_behavioral = behavioral_metrics["f1"]
     trust_traffic = traffic_metrics["f1"]
     trust_metrics = run_trust_layer(
@@ -487,7 +487,7 @@ def main() -> None:
         trust_behavioral=trust_behavioral,
         trust_traffic=trust_traffic,
     )
-    results.append({"stage": "Stage 6 - Multi-Agent (With Trust)", **trust_metrics})
+    results.append({"stage": "Stage 6 - Multi-Source (With Trust)", **trust_metrics})
     print("[STAGE 6/6] Done", flush=True)
 
     results_df = pd.DataFrame(results)

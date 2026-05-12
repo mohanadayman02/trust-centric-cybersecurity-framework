@@ -1,0 +1,17 @@
+method,attack_rate,normal_rate,almost_all_attack,almost_all_normal
+General Traffic Agent,0.18472,0.81528,False,False
+Attack Recall Agent,0.26566,0.73434,False,False
+Normal Behavior Agent,0.13912,0.86088,False,False
+Hard-Case Agent,0.2219,0.7781,False,False
+Majority Voting,0.15518,0.84482,False,False
+Global Trust Voting,0.18642,0.81358,False,False
+Attack Recall Trust,0.18642,0.81358,False,False
+Role-Aware Trust Voting,0.18642,0.81358,False,False
+Trust Agent Selector,0.20184,0.79816,False,False
+Accuracy-prioritized selector,0.20622,0.79378,False,False
+F1-prioritized selector,0.20636,0.79364,False,False
+Recall-safe selector,0.22052,0.77948,False,False
+FNR-penalty selector,0.2149,0.7851,False,False
+Disagreement-aware selector,0.21222,0.78778,False,False
+Best tuned CICIDS2017 selector,0.22052,0.77948,False,False
+Best 4-Agent Trust Method,0.20184,0.79816,False,False

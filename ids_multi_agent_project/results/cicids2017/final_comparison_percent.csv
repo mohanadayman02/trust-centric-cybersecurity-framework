@@ -1,0 +1,20 @@
+Dataset,Category,Method,Accuracy,Precision,Recall,F1,FPR,FNR,Specificity,Balanced Accuracy,Improvement vs Best Single Agent Accuracy,Improvement vs Best Single Agent F1,Improvement vs Best Single Agent Recall,FNR Reduction vs Best Single Agent,Notes
+CICIDS2017,Single Agent,General Traffic Agent,91.91%,81.42%,76.35%,78.80%,4.27%,23.65%,95.73%,86.04%,-5.25 pts,-14.41 pts,-22.76 pts,-22.76 pts,Single-agent metric row
+CICIDS2017,Single Agent,Attack Recall Agent,86.68%,62.01%,83.62%,71.21%,12.57%,16.38%,87.43%,85.53%,-10.48 pts,-22.00 pts,-15.48 pts,-15.48 pts,Single-agent metric row
+CICIDS2017,Single Agent,Normal Behavior Agent,90.85%,87.91%,62.08%,72.77%,2.09%,37.92%,97.91%,79.99%,-6.31 pts,-20.44 pts,-37.03 pts,-37.03 pts,Single-agent metric row
+CICIDS2017,Single Agent,Hard-Case Agent,97.16%,87.99%,99.11%,93.22%,3.32%,0.89%,96.68%,97.89%,+0.00 pts,+0.00 pts,+0.00 pts,+0.00 pts,Best single agent baseline
+CICIDS2017,Trust Method,Majority Voting,94.81%,96.77%,76.22%,85.27%,0.63%,23.78%,99.37%,87.80%,-2.34 pts,-7.94 pts,-22.88 pts,-22.88 pts,Trust aggregation method
+CICIDS2017,Trust Method,Global Trust Voting,96.38%,93.12%,88.12%,90.55%,1.60%,11.88%,98.40%,93.26%,-0.78 pts,-2.66 pts,-10.98 pts,-10.98 pts,Trust aggregation method
+CICIDS2017,Trust Method,Attack Recall Trust,96.38%,93.12%,88.12%,90.55%,1.60%,11.88%,98.40%,93.26%,-0.78 pts,-2.66 pts,-10.98 pts,-10.98 pts,Trust aggregation method
+CICIDS2017,Trust Method,Role-Aware Trust Voting,96.38%,93.12%,88.12%,90.55%,1.60%,11.88%,98.40%,93.26%,-0.78 pts,-2.66 pts,-10.98 pts,-10.98 pts,Trust aggregation method
+CICIDS2017,Trust Method,Disagreement-aware Selector,97.16%,87.99%,99.11%,93.22%,3.32%,0.89%,96.68%,97.89%,+0.00 pts,+0.00 pts,+0.00 pts,+0.00 pts,Selector ablation metric row
+CICIDS2017,Trust Method,Hard-Case Guarded Selector,95.06%,80.37%,99.12%,88.77%,5.94%,0.88%,94.06%,96.59%,-2.10 pts,-4.45 pts,+0.01 pts,+0.01 pts,Selector ablation metric row
+CICIDS2017,Trust Method,Trust Agent Selector,98.75%,95.70%,98.05%,96.86%,1.08%,1.95%,98.92%,98.48%,+1.59 pts,+3.65 pts,-1.06 pts,-1.06 pts,Trust aggregation method
+CICIDS2017,Trust Method,Best 4-Agent Trust Method,98.75%,95.70%,98.05%,96.86%,1.08%,1.95%,98.92%,98.48%,+1.59 pts,+3.65 pts,-1.06 pts,-1.06 pts,Best trust row from four_agent_trust_results
+CICIDS2017,Trust Method,Accuracy-prioritized selector,97.85%,92.56%,96.89%,94.68%,1.91%,3.11%,98.09%,97.49%,+0.70 pts,+1.46 pts,-2.21 pts,-2.21 pts,Trust aggregation method
+CICIDS2017,Trust Method,F1-prioritized selector,97.86%,92.54%,96.93%,94.68%,1.92%,3.07%,98.08%,97.51%,+0.70 pts,+1.47 pts,-2.17 pts,-2.17 pts,Trust aggregation method
+CICIDS2017,Trust Method,Recall-safe selector,97.14%,88.18%,98.71%,93.15%,3.25%,1.29%,96.75%,97.73%,-0.02 pts,-0.07 pts,-0.40 pts,-0.40 pts,Trust aggregation method
+CICIDS2017,Trust Method,FNR-penalty selector,97.35%,89.67%,97.82%,93.57%,2.76%,2.18%,97.24%,97.53%,+0.19 pts,+0.35 pts,-1.29 pts,-1.29 pts,Trust aggregation method
+CICIDS2017,Trust Method,Disagreement-aware selector,97.81%,91.24%,98.29%,94.64%,2.31%,1.71%,97.69%,97.99%,+0.65 pts,+1.42 pts,-0.81 pts,-0.81 pts,Trust aggregation method
+CICIDS2017,Trust Method,Best tuned CICIDS2017 selector,97.14%,88.18%,98.71%,93.15%,3.25%,1.29%,96.75%,97.73%,-0.02 pts,-0.07 pts,-0.40 pts,-0.40 pts,Trust aggregation method
+CICIDS2017,Oracle,Oracle,99.79%,,,,,,,,+2.63 pts,,,,Theoretical upper bound among four agents

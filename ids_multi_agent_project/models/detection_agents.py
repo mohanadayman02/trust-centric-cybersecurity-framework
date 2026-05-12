@@ -1,4 +1,9 @@
-"""Standardized detection-agent wrappers for IDS models."""
+"""Standardized detection-model wrappers for IDS models (decision sources).
+
+Deprecated: the project previously used the term 'agent' in some modules. These wrappers
+remain for compatibility but are referred to as models/decision sources in the trust-centric
+framework.
+"""
 
 from __future__ import annotations
 

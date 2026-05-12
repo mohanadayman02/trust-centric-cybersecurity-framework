@@ -6,6 +6,13 @@ run_mode: feature_view_multi_agent
 dataset: NSL-KDD
 classification: binary
 num_agents: 4
+expanded_models_enabled: false
+four_agent_mode:
+  balance_agents: true
+  max_general_agent_features: null
+  target_agent_accuracy_range:
+    min: 0.92
+    max: 0.97
 feature_views:
   enabled: true
   views:
@@ -32,6 +39,18 @@ datasets:
     path: data/nsl_kdd.csv
     label_column: label
     categorical_columns: [protocol_type, service, flag]
+  - name: UNSW-NB15
+    train_path: data/raw/unsw_nb15/UNSW_NB15_training-set.csv
+    test_path: data/raw/unsw_nb15/UNSW_NB15_testing-set.csv
+    label_column: label
+    categorical_columns: [proto, service, state]
+  - name: ToN-IoT
+    combine_csvs: false
+  - name: CICIDS2017
+    stratified_subsample: true
+    max_train_samples: 100000
+    max_validation_samples: 25000
+    max_test_samples: 50000
 
 models:
   autoencoder:
@@ -70,6 +89,32 @@ metrics:
   - precision
   - recall
   - f1
+
+trust_methods:
+  enabled:
+    - majority_voting
+    - accuracy_based_trust
+    - attack_recall_trust
+    - role_aware_trust_voting
+    - trust_agent_selector
+  error_aware:
+    alpha: 0.3
+    beta: 0.7
+  attack_recall:
+    w_recall: 0.40
+    w_low_fnr: 0.30
+    w_f1: 0.20
+    w_precision: 0.10
+  role_aware_trust_voting:
+    attack_threshold: 0.60
+    normal_threshold: 0.65
+  trust_agent_selector:
+    neighbor_k: 25
+    disagreement_bonus: 0.10
+    attack_role_bonus: 0.08
+    normal_role_bonus: 0.08
+    attack_confidence_threshold: 0.60
+    normal_confidence_threshold: 0.65
 
 agentic_reasoning:
   ollama_enabled: false

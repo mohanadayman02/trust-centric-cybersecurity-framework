@@ -5,7 +5,7 @@
 - Generated at: `2026-04-07T01:34:47`
 - Datasets evaluated: CICIDS2017, NSL-KDD, UNSW-NB15
 - Label convention: normal=0, attack=1.
-- Two-agent design: both agents operate on the same processed intrusion dataset rows.
+ - Two-source design: independent base models (decision sources) operate on the same processed intrusion dataset rows.
 - Role differentiation is analytical (not separate raw sensor streams).
 - BehavioralAnalysisAgent backbone: RandomForestClassifier.
 - TrafficAnalysisAgent backbone: SVM (SVC, RBF kernel).
@@ -17,7 +17,7 @@
 - UNSW-NB15: train(normal=59716, attack=47573), balanced_train(normal=47573, attack=47573), test(normal=25592, attack=20389), method=random_undersample_train_only
 - CICIDS2017: train(normal=1467050, attack=297626), balanced_train(normal=297626, attack=297626), test(normal=628736, attack=127554), method=random_undersample_train_only
 
-## Individual Agent Results
+## Individual Model (Decision Source) Results
 ### CICIDS2017
 - BehavioralAnalysisAgent: CV Acc=0.9959, CV Prec=0.9989, CV Rec=0.9930, CV F1=0.9959, Test Acc=0.9977, Test Prec=0.9941, Test Rec=0.9925, Test F1=0.9933, TP=126593, TN=627989, FP=747, FN=961, FPR=0.0012, FNR=0.0075, TPR=0.9925, TNR=0.9988, Specificity=0.9988, BalancedAcc=0.9956
 - TrafficAnalysisAgent: CV Acc=0.9890, CV Prec=0.9936, CV Rec=0.9844, CV F1=0.9890, Test Acc=0.9925, Test Prec=0.9707, Test Rec=0.9852, Test F1=0.9779, TP=125666, TN=624946, FP=3790, FN=1888, FPR=0.0060, FNR=0.0148, TPR=0.9852, TNR=0.9940, Specificity=0.9940, BalancedAcc=0.9896
@@ -36,14 +36,14 @@
 ## Conflict Resolution Summary
 - Protocol: agreement -> agreed label; disagreement -> trust-based winner; small trust gap (< trust threshold) -> trust_contested with trust-based fallback label.
 
-## Final Resolved Multi-Agent Results
+## Final Resolved Trust-Based Results
 - NSL-KDD: Acc=0.9970, Prec=0.9953, Rec=0.9984, F1=0.9969, TP=21244, TN=22989, FP=101, FN=33, FPR=0.0044, FNR=0.0016, BalancedAcc=0.9970
 - UNSW-NB15: Acc=0.8902, Prec=0.8345, Rec=0.9386, F1=0.8835, TP=19137, TN=21796, FP=3796, FN=1252, FPR=0.1483, FNR=0.0614, BalancedAcc=0.8951
 - CICIDS2017: Acc=0.9977, Prec=0.9941, Rec=0.9925, F1=0.9933, TP=126593, TN=627989, FP=747, FN=961, FPR=0.0012, FNR=0.0075, BalancedAcc=0.9956
 
 ## Trust Layer
-- Trust design overview: static trust-aware prioritization over the existing two-agent system.
-- Trust formula per agent/sample: trust_score = w1*global_reliability + w2*confidence + w3*disagreement_reliability.
+- Trust design overview: static trust-aware prioritization over independent decision sources.
+- Trust formula per model/sample: trust_score = w1*global_reliability + w2*confidence + w3*disagreement_reliability.
 - Weights: w1=0.50, w2=0.30, w3=0.20; trust_gap_threshold=0.05.
 - Note: trust is used for decision prioritization only and does not replace either classifier backbone.
 ### NSL-KDD

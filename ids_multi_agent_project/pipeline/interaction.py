@@ -1,4 +1,7 @@
-"""Interaction and trust-aware conflict-resolution utilities for two-agent IDS decisions."""
+"""Interaction and trust-aware conflict-resolution utilities for two-model (decision-source) decisions.
+
+Terminology updated to reflect trust-centric decision layer as the system-level coordinator.
+"""
 
 from __future__ import annotations
 

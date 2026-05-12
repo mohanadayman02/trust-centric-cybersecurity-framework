@@ -1,0 +1,15 @@
+Dataset: UNSW-NB15
+Output directory: /Users/nagy/Desktop/Mohanad bach/ids_multi_agent_project/results/unsw_nb15
+[INFO] Dropping UNSW leakage columns from train/test: ['attack_cat', 'id']
+Dataset loaded: UNSW-NB15
+Preprocessing complete
+Traceback (most recent call last):
+  File "/Users/nagy/Desktop/Mohanad bach/ids_multi_agent_project/main.py", line 1797, in <module>
+    main()
+  File "/Users/nagy/Desktop/Mohanad bach/ids_multi_agent_project/main.py", line 1790, in main
+    _run_feature_view_multi_agent(config, project_root, results_dir, dataset_name=dataset_arg)
+  File "/Users/nagy/Desktop/Mohanad bach/ids_multi_agent_project/main.py", line 1106, in _run_feature_view_multi_agent
+    integrity_report = generate_integrity_report(
+  File "/Users/nagy/Desktop/Mohanad bach/ids_multi_agent_project/pipeline/integrity.py", line 77, in generate_integrity_report
+    f"- Binary labels verified: {set(y_train.unique()).issubset({0, 1}) and set(y_test.unique()).issubset({0, 1})}",
+AttributeError: 'numpy.ndarray' object has no attribute 'unique'

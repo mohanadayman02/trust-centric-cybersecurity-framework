@@ -1,0 +1,5 @@
+selected_agent,number_of_samples_selected,selection_rate,selected_agent_accuracy_on_selected_samples,selected_agent_error_count,attack_selection_rate,normal_selection_rate
+Normal Behavior Agent,25763,0.51526,0.9935954663664945,165,0.0019407677677289136,0.9980592322322711
+Hard-Case Agent,23660,0.4732,0.9810228233305156,449,0.4061707523245985,0.5938292476754016
+Attack Recall Agent,432,0.00864,0.9745370370370371,11,1.0,0.0
+General Traffic Agent,145,0.0029,0.993103448275862,1,0.0,1.0
