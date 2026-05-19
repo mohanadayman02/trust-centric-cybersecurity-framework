@@ -9,13 +9,13 @@
 
 ## Best Results
 - Best single agent: Hard-Case Agent with accuracy=0.9212, F1=0.9301, recall=0.9515, FNR=0.0485.
-- Best trust-based final decision: Majority Voting with accuracy=0.8383, F1=0.8696, recall=0.9795, FNR=0.0205.
+- Best trust-based final decision: Majority Voting with accuracy=0.8383, F1=0.8696, recall=0.9794, FNR=0.0206.
 
 ## Improvement
 - Accuracy improvement vs best single agent: -0.0830
 - F1 improvement vs best single agent: -0.0605
-- Recall improvement vs best single agent: 0.0280
-- FNR reduction vs best single agent: 0.0280
+- Recall improvement vs best single agent: 0.0279
+- FNR reduction vs best single agent: 0.0279
 
 ## Agent Balance Checks
 - Best single agent accuracy: 0.9212
@@ -31,9 +31,9 @@
 - +2 percentage-point improvement was achieved: False
 
 ## Oracle Breakdown
-- Samples all agents correct: 57207
+- Samples all agents correct: 57205
 - Samples all agents wrong: 3421
-- Samples only one agent correct: 9013
+- Samples only one agent correct: 9011
 - Samples where Hard-Case Agent is wrong but another agent is correct: 3063
 - Samples where trust selector failed despite at least one correct agent: 11602
 - Trust selector missed-opportunity count: 11602

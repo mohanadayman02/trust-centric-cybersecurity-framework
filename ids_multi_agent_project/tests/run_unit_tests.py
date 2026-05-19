@@ -41,6 +41,13 @@ cic_spec = importlib.util.spec_from_file_location(
 cic_module = importlib.util.module_from_spec(cic_spec)
 cic_spec.loader.exec_module(cic_module)
 
+poison_spec = importlib.util.spec_from_file_location(
+    "test_poisoning",
+    str(pathlib.Path(__file__).parent / "test_poisoning.py"),
+)
+poison_module = importlib.util.module_from_spec(poison_spec)
+poison_spec.loader.exec_module(poison_module)
+
 funcs = [
     module.test_majority_voting_simple,
     module.test_accuracy_based_trust_prefers_best,
@@ -78,6 +85,20 @@ funcs = [
     cic_module.test_cic_loader_prefers_processed_train_test,
     cic_module.test_cic_loader_single_csv_fallback,
     cic_module.test_cic_alias_and_output_directory_name,
+    poison_module.test_poison_predictions_does_not_mutate_input,
+    poison_module.test_flip_mode_is_deterministic,
+    poison_module.test_normal_bias_forces_selected_predictions_to_zero,
+    poison_module.test_attack_bias_forces_selected_predictions_to_one,
+    poison_module.test_poisoned_experiment_poisons_exactly_one_agent_at_a_time,
+    poison_module.test_poisoned_output_has_full_metric_columns,
+    poison_module.test_original_and_poisoned_rows_both_exist_per_agent,
+    poison_module.test_all_trust_methods_are_included,
+    poison_module.test_recovery_metrics_compute_correctly,
+    poison_module.test_majority_vote_metrics_are_preserved,
+    poison_module.test_clean_and_poisoned_rows_exist_in_robustness_report,
+    poison_module.test_degradation_metrics_compute_correctly,
+    poison_module.test_separate_per_agent_folders_and_summary_are_created_and_legacy_outputs_preserved,
+    poison_module.test_running_without_run_poisoned_experiments_preserves_existing_behavior,
 ]
 
 failed = []

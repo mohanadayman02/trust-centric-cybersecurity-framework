@@ -1,33 +1,44 @@
-# Evaluation Integrity Report
+# Integrity Report: NSL-KDD
 
+## Dataset Size
+- Training samples: 83168
+- Validation samples: 20793
 - Test samples: 44556
-- Test class distribution: normal=23117, attack=21439
-- Trust scores are derived from validation metrics only; test labels are only used for final evaluation.
-- All reported metrics use the full test set. No reported row is computed on a filtered subset.
+- Total: 148517
 
-## Prediction Distribution
-- Stage 1: Basic Feature Model: attack_rate=0.4754, normal_rate=0.5246, almost_all_attack=False, almost_all_normal=False
-- Stage 2: Content Feature Model: attack_rate=0.6102, normal_rate=0.3898, almost_all_attack=False, almost_all_normal=False
-- Stage 3: Time Traffic Feature Model: attack_rate=0.4410, normal_rate=0.5590, almost_all_attack=False, almost_all_normal=False
-- Stage 4: Host Traffic Feature Model: attack_rate=0.4705, normal_rate=0.5295, almost_all_attack=False, almost_all_normal=False
-- Logistic Regression Model: attack_rate=0.4850, normal_rate=0.5150, almost_all_attack=False, almost_all_normal=False
-- ExtraTrees Model: attack_rate=0.4815, normal_rate=0.5185, almost_all_attack=False, almost_all_normal=False
-- HistGradientBoosting Model: attack_rate=0.4814, normal_rate=0.5186, almost_all_attack=False, almost_all_normal=False
-- majority_voting: attack_rate=0.4832, normal_rate=0.5168, almost_all_attack=False, almost_all_normal=False
-- accuracy_based_trust: attack_rate=0.4832, normal_rate=0.5168, almost_all_attack=False, almost_all_normal=False
-- f1_based_trust: attack_rate=0.4832, normal_rate=0.5168, almost_all_attack=False, almost_all_normal=False
-- error_aware_trust: attack_rate=0.4832, normal_rate=0.5168, almost_all_attack=False, almost_all_normal=False
-- confidence_based_trust: attack_rate=0.4764, normal_rate=0.5236, almost_all_attack=False, almost_all_normal=False
-- confidence_margin_trust: attack_rate=0.4844, normal_rate=0.5156, almost_all_attack=False, almost_all_normal=False
-- class_specific_trust: attack_rate=0.4832, normal_rate=0.5168, almost_all_attack=False, almost_all_normal=False
-- dynamic_trust: attack_rate=0.4832, normal_rate=0.5168, almost_all_attack=False, almost_all_normal=False
-- hybrid_trust: attack_rate=0.4764, normal_rate=0.5236, almost_all_attack=False, almost_all_normal=False
-- attack_recall_trust: attack_rate=0.4832, normal_rate=0.5168, almost_all_attack=False, almost_all_normal=False
-- fnr_penalty_trust: attack_rate=0.4832, normal_rate=0.5168, almost_all_attack=False, almost_all_normal=False
-- attack_override_trust: attack_rate=0.6377, normal_rate=0.3623, almost_all_attack=False, almost_all_normal=False
-- best_safe_model_selector: attack_rate=0.4814, normal_rate=0.5186, almost_all_attack=False, almost_all_normal=False
-- best_accuracy_selector: attack_rate=0.4814, normal_rate=0.5186, almost_all_attack=False, almost_all_normal=False
-- local_accuracy_trust: attack_rate=0.4831, normal_rate=0.5169, almost_all_attack=False, almost_all_normal=False
-- stacking_meta_trust: attack_rate=0.4813, normal_rate=0.5187, almost_all_attack=False, almost_all_normal=False
+## Feature Information
+- Total features: 122
+- Categorical features: 3 (protocol_type, service, flag)
+- Numeric features: 39 (duration, src_bytes, dst_bytes, land, wrong_fragment...)
 
-- No method in the current run is evaluated on a filtered subset.
+## Class Distribution
+- Training: Normal=43149 (51.9%), Attack=40019 (48.1%)
+- Validation: Normal=10788 (51.9%), Attack=10005 (48.1%)
+- Test: Normal=23117 (51.9%), Attack=21439 (48.1%)
+
+## Leakage Prevention
+- Dropped columns: None
+- Preprocessing fit: Training data only
+- Validation transformed: After training fit
+- Test transformed: After training fit
+- Test labels used for: Final evaluation only
+
+## Validation Discipline
+- ✓ Threshold tuning: Validation data only (no test labels)
+- ✓ Feature selection: Training data only
+- ✓ Hard-case identification: Validation data only
+- ✓ Preprocessing: Fit on training data only
+- ✓ Trust selector tuning: Validation data only
+- ✓ Test labels: Reserved for final metrics calculation
+
+## Data Quality
+- Missing values in training features: 0
+- Missing values in validation features: 0
+- Missing values in test features: 0
+- Binary labels verified: True
+
+## Preprocessing Pipeline
+- Numeric scaler: StandardScaler (fitted on train, applied to val/test)
+- Categorical encoder: OneHotEncoder (fitted on train, applied to val/test)
+- Imputation: Median for numeric, 'unknown' for categorical
+- Feature alignment: Train/val/test have identical feature columns after preprocessing

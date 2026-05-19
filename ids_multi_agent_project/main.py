@@ -7,6 +7,8 @@ Supported run modes:
 
 from __future__ import annotations
 
+import argparse
+import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 import sys
@@ -30,6 +32,8 @@ from pipeline.data_loader import (
 from pipeline.evaluation import evaluate_model, evaluate_predictions
 from pipeline.feature_views import get_nsl_kdd_feature_views, map_processed_feature_views, get_unsw_feature_views
 from pipeline.integrity import generate_integrity_report
+from pipeline.poisoning import run_poisoned_agent_experiments, save_poisoned_comparison_outputs
+from pipeline.ai_trust_auditor import build_ai_trust_config, select_method_with_ai
 from pipeline.reporting_utils import compute_model_diversity_report, compute_oracle_upper_bound, summarize_prediction_distribution
 from pipeline.preprocessing import build_preprocessing_pipeline, sanitize_feature_values
 from pipeline import trust_methods
@@ -287,6 +291,43 @@ def _normalize_dataset_alias(dataset_name: str) -> str:
     if normalized in {"cicids2017", "cic-ids2017", "cic ids2017"}:
         return "CICIDS2017"
     return dataset_name
+
+
+def _parse_cli_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(add_help=True)
+    parser.add_argument("--dataset", type=str, default=None)
+    parser.add_argument("--run-poisoned-experiments", action="store_true")
+    parser.add_argument("--poison-rate", type=float, default=0.3)
+    parser.add_argument(
+        "--poison-mode",
+        type=str,
+        default="flip",
+        choices=["flip", "normal_bias", "attack_bias"],
+    )
+    parser.add_argument("--poison-random-state", type=int, default=42)
+    parser.add_argument("--enable-ai-trust", action="store_true")
+    parser.add_argument("--ai-trust-provider", type=str, default=None)
+    parser.add_argument("--ai-trust-model", type=str, default=None)
+    parser.add_argument("--ai-trust-sample-limit", type=int, default=None)
+    parser.add_argument("--ai-trust-timeout", type=float, default=None)
+    parser.add_argument("--ai-trust-fallback-method", type=str, default=None)
+    args, _ = parser.parse_known_args(argv)
+    return args
+
+
+def _build_poison_experiment_options(args: argparse.Namespace) -> Dict[str, Any]:
+    return {
+        "run_poisoned_experiments": bool(args.run_poisoned_experiments),
+        "poison_rate": float(args.poison_rate),
+        "poison_mode": str(args.poison_mode),
+        "poison_random_state": int(args.poison_random_state),
+        "enable_ai_trust": bool(args.enable_ai_trust),
+        "ai_trust_provider": args.ai_trust_provider,
+        "ai_trust_model": args.ai_trust_model,
+        "ai_trust_sample_limit": args.ai_trust_sample_limit,
+        "ai_trust_timeout": args.ai_trust_timeout,
+        "ai_trust_fallback_method": args.ai_trust_fallback_method,
+    }
 
 
 
@@ -1358,6 +1399,7 @@ def _run_feature_view_multi_agent(
     project_root: Path,
     results_dir: Path,
     dataset_name: Optional[str] = None,
+    poison_options: Optional[Dict[str, Any]] = None,
 ) -> None:
     """Run four-agent trust-centric experiment on NSL-KDD or UNSW-NB15 datasets."""
     preprocessing_cfg = dict(config.get("preprocessing", {}))
@@ -1381,14 +1423,19 @@ def _run_feature_view_multi_agent(
     # Create dataset-specific results directory
     if dataset_name_lower in {"unsw-nb15", "unsw"}:
         dataset_output_dir = results_dir / "unsw_nb15"
+        dataset_file_stem = "unsw_nb15"
     elif dataset_name_lower in {"ton-iot", "ton_iot"}:
         dataset_output_dir = results_dir / "ton_iot"
+        dataset_file_stem = "ton_iot"
     elif dataset_name_lower in {"cicids2017", "cic-ids2017"}:
         dataset_output_dir = results_dir / "cicids2017"
+        dataset_file_stem = "cicids2017"
     elif dataset_name_lower == "nsl-kdd":
         dataset_output_dir = results_dir
+        dataset_file_stem = "nsl_kdd"
     else:
         dataset_output_dir = results_dir / dataset_name_lower.replace(" ", "_")
+        dataset_file_stem = dataset_name_lower.replace(" ", "_")
     
     dataset_output_dir.mkdir(parents=True, exist_ok=True)
     print(f"Dataset: {dataset_name}")
@@ -2003,6 +2050,64 @@ def _run_feature_view_multi_agent(
         trust_outputs["Best tuned CICIDS2017 selector"] = cic_best_selector_pred
         trust_method_names.append("Best tuned CICIDS2017 selector")
 
+    ai_trust_cfg = build_ai_trust_config(poison_options or {})
+    ai_decision_rows: List[Dict[str, Any]] = []
+    if ai_trust_cfg.enabled:
+        method_metrics_for_ai: Dict[str, Dict[str, float]] = {}
+        method_predictions_for_ai: Dict[str, int] = {}
+        for method_name in trust_method_names:
+            y_pred = np.asarray(trust_outputs[method_name], dtype=int)
+            m = evaluate_predictions(np.asarray(y_test, dtype=int), y_pred)
+            method_metrics_for_ai[method_name] = {
+                "Accuracy": float(m["test_accuracy"]),
+                "Precision": float(m["test_precision"]),
+                "Recall": float(m["test_recall"]),
+                "F1": float(m["test_f1"]),
+                "FPR": float(m["fpr"]),
+                "FNR": float(m["fnr"]),
+                "Balanced Accuracy": float(m["balanced_accuracy"]),
+            }
+            method_predictions_for_ai[method_name] = int(y_pred[0]) if y_pred.size else 0
+
+        cache_file = results_dir / "ai_trust_cache" / f"{dataset_file_stem}_ai_trust_cache.jsonl"
+        ai_decision = select_method_with_ai(
+            dataset=dataset_name,
+            scenario="Clean",
+            poisoned_agent="None",
+            poison_mode=str(poison_options.get("poison_mode", "none")) if poison_options else "none",
+            poison_rate=float(poison_options.get("poison_rate", 0.0)) if poison_options else 0.0,
+            allowed_methods=list(method_metrics_for_ai.keys()),
+            method_metrics=method_metrics_for_ai,
+            method_predictions=method_predictions_for_ai,
+            agreement_level=float(np.mean(list(method_predictions_for_ai.values()))) if method_predictions_for_ai else None,
+            suspected_poisoned_agent=None,
+            config=ai_trust_cfg,
+            cache_file=cache_file,
+        )
+        selected_method = str(ai_decision.get("selected_method", ""))
+        if selected_method in trust_outputs:
+            trust_outputs["AI Trust Auditor"] = np.asarray(trust_outputs[selected_method], dtype=int)
+            trust_method_names.append("AI Trust Auditor")
+        ai_decision_rows.append(
+            {
+                "Dataset": dataset_name,
+                "Scenario": "Clean",
+                "Poisoned Agent": "None",
+                "Poison Mode": str(poison_options.get("poison_mode", "none")) if poison_options else "none",
+                "Poison Rate": float(poison_options.get("poison_rate", 0.0)) if poison_options else 0.0,
+                "Selected Method": selected_method,
+                "Selected Accuracy": ai_decision.get("selected_accuracy", np.nan),
+                "Selected F1": ai_decision.get("selected_f1", np.nan),
+                "Selected FPR": ai_decision.get("selected_fpr", np.nan),
+                "Selected FNR": ai_decision.get("selected_fnr", np.nan),
+                "AI Confidence": ai_decision.get("confidence", np.nan),
+                "Suspected Unreliable Agents": "|".join(ai_decision.get("suspected_unreliable_agents", [])),
+                "Reason": ai_decision.get("reason", ""),
+                "Status": ai_decision.get("status", ""),
+                "Fallback Used": bool(ai_decision.get("fallback_used", False)),
+            }
+        )
+
     for method_name in trust_method_names:
         y_pred = trust_outputs[method_name]
         metrics = evaluate_predictions(np.asarray(y_test, dtype=int), y_pred)
@@ -2046,6 +2151,8 @@ def _run_feature_view_multi_agent(
     )
     trust_results_df = pd.DataFrame(trust_rows)
     trust_results_df.to_csv(dataset_output_dir / "four_agent_trust_results.csv", index=False)
+    if ai_decision_rows:
+        pd.DataFrame(ai_decision_rows).to_csv(dataset_output_dir / "ai_trust_decisions.csv", index=False)
 
     selector_variant_specs = [
         (
@@ -2738,6 +2845,38 @@ def _run_feature_view_multi_agent(
     sample_prediction_data["best_4_agent_trust_method_prediction"] = trust_outputs[best_trust_method_name]
     pd.DataFrame(sample_prediction_data, index=x_test.index).to_csv(dataset_output_dir / "sample_level_predictions.csv", index=False)
 
+    poison_options = poison_options or {}
+    if bool(poison_options.get("run_poisoned_experiments", False)):
+        poisoned_comparison_df, poisoned_artifacts = run_poisoned_agent_experiments(
+            dataset_name=dataset_name,
+            y_test=np.asarray(y_test, dtype=int),
+            model_preds=model_preds,
+            model_probs=model_probs,
+            validation_model_metrics=validation_model_metrics,
+            roles=roles,
+            x_val_full=x_val_full,
+            y_val=np.asarray(y_val, dtype=int),
+            validation_predictions=validation_predictions,
+            x_test_full=x_test_full,
+            role_aware_cfg=role_aware_cfg,
+            selector_params=tuned_selector_params,
+            poison_rate=float(poison_options.get("poison_rate", 0.3)),
+            poison_mode=str(poison_options.get("poison_mode", "flip")),
+            poison_random_state=int(poison_options.get("poison_random_state", 42)),
+            ai_trust_config=ai_trust_cfg,
+            ai_trust_cache_dir=results_dir / "ai_trust_cache",
+            return_artifacts=True,
+        )
+        save_poisoned_comparison_outputs(
+            poisoned_comparison_df,
+            dataset_output_dir,
+            dataset_file_stem,
+            robustness_artifacts=poisoned_artifacts,
+        )
+        if ai_decision_rows and isinstance(poisoned_artifacts.get("ai_trust_decisions"), pd.DataFrame):
+            merged_ai = pd.concat([pd.DataFrame(ai_decision_rows), poisoned_artifacts["ai_trust_decisions"]], ignore_index=True, sort=False)
+            merged_ai.to_csv(dataset_output_dir / "ai_trust_decisions.csv", index=False)
+
     print("Four-source trust-centric experiment complete")
 
 
@@ -2755,19 +2894,23 @@ def main() -> None:
 
     config = load_yaml_config(config_path)
     run_mode = str(config.get("run_mode", "louati_ktata_baseline"))
+    cli_args = _parse_cli_args(sys.argv[1:])
+    poison_options = _build_poison_experiment_options(cli_args)
 
-    # Check for --dataset command-line argument
-    dataset_arg = None
-    if len(sys.argv) > 1:
-        for arg in sys.argv[1:]:
-            if arg.startswith("--dataset="):
-                dataset_arg = arg.split("=", 1)[1]
-            elif arg == "--dataset" and len(sys.argv) > sys.argv.index(arg) + 1:
-                dataset_arg = sys.argv[sys.argv.index(arg) + 1]
+    dataset_arg = cli_args.dataset
 
     if run_mode == "feature_view_multi_agent":
-        _run_feature_view_multi_agent(config, project_root, results_dir, dataset_name=dataset_arg)
+        _run_feature_view_multi_agent(
+            config,
+            project_root,
+            results_dir,
+            dataset_name=dataset_arg,
+            poison_options=poison_options,
+        )
         return
+
+    if poison_options.get("run_poisoned_experiments", False):
+        print("Poisoned-agent experiments are supported only for run_mode=feature_view_multi_agent. Skipping.")
 
     _run_louati_ktata_baseline(config, project_root, results_dir)
 
