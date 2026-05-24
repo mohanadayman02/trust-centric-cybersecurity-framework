@@ -1,3 +1,6 @@
+
+![Trust Framework Banner](https://github.com/mohanadayman02/trust-centric-cybersecurity-framework/blob/main/ChatGPT%20Image%20May%2024%2C%202026%20at%2012_29_41%20PM.png)
+
 # Trust-Centric Cybersecurity Framework
 
 AI-driven trust-centric decision framework for cybersecurity intrusion detection systems.
