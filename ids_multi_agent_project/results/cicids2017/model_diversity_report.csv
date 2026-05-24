@@ -1,7 +1,0 @@
-agent_a,agent_b,agreement_rate,disagreement_rate,agent_a_correct_agent_b_wrong,agent_b_correct_agent_a_wrong,both_wrong,both_correct
-General Traffic Agent,Attack Recall Agent,0.9087,0.0913,3589,976,3070,42365
-General Traffic Agent,Normal Behavior Agent,0.91752,0.08248,2327,1797,2249,43627
-General Traffic Agent,Hard-Case Agent,0.89592,0.10408,1373,3831,215,44581
-Attack Recall Agent,Normal Behavior Agent,0.8293,0.1707,3226,5309,1350,40115
-Attack Recall Agent,Hard-Case Agent,0.8563,0.1437,1057,6128,531,42284
-Normal Behavior Agent,Hard-Case Agent,0.88512,0.11488,1378,4366,210,44046
