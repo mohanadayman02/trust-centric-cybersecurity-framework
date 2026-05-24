@@ -39,3 +39,4 @@ secrets/
 credentials/
 *.key
 *.pem
+*.pdf
