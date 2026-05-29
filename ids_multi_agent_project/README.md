@@ -1,4 +1,4 @@
-# IDS Multi-Agent Project (Stage 1)
+# Trust-Centric Cybersecurity Detection Framework (Prototype)
 
 ## Purpose
 This project provides a clean, modular baseline for a classical machine-learning intrusion detection experiment with **two IDS agents** across **multiple datasets**.
@@ -13,8 +13,8 @@ Current scope (stage 1):
 
 Not included yet:
 - Trust scoring
-- Agent fusion/ensemble logic
-- Malicious/adversarial agent simulation
+- Base model fusion/ensemble logic
+- Malicious/adversarial model simulation
 
 ## Folder Structure
 ```text
@@ -64,7 +64,7 @@ The script will:
 - Read `config/experiment.yml`
 - Loop over all datasets
 - Train and evaluate the two configured IDS agents
-- Print metrics and confusion matrix per dataset/agent
+ - Print metrics and confusion matrix per dataset/model (decision source)
 - Save results CSV in `results/`
 
 ## Notes

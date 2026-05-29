@@ -1,0 +1,6 @@
+Dataset,Scenario,Poisoned Agent,Poison Mode,Poison Rate,Selected Method,Selected Accuracy,Selected F1,Selected FPR,Selected FNR,AI Confidence,Suspected Unreliable Agents,Reason,Status,Fallback Used
+CICIDS2017,Clean,None,flip,0.3,Majority Voting,0.94806,0.8525855707555202,0.006400996264009962,0.23756345177664975,0.0,,AI fallback: Ollama call failed: <urlopen error [Errno 1] Operation not permitted>,fallback,True
+CICIDS2017,Poisoned,General Traffic Agent,flip,0.3,Dynamic Trust,0.96314,0.9038652130822596,0.016363636363636365,0.12040609137055838,0.0,,AI fallback: Ollama call failed: <urlopen error [Errno 1] Operation not permitted>,fallback,True
+CICIDS2017,Poisoned,Attack Recall Agent,flip,0.3,Dynamic Trust,0.95164,0.8662462661798872,0.00991282689912827,0.2050761421319797,0.0,,AI fallback: Ollama call failed: <urlopen error [Errno 1] Operation not permitted>,fallback,True
+CICIDS2017,Poisoned,Normal Behavior Agent,flip,0.3,Dynamic Trust,0.9313,0.8299083931666255,0.0489414694894147,0.14923857868020304,0.0,,AI fallback: Ollama call failed: <urlopen error [Errno 1] Operation not permitted>,fallback,True
+CICIDS2017,Poisoned,Hard-Case Agent,flip,0.3,Dynamic Trust,0.91814,0.7858525610840789,0.043661270236612704,0.23756345177664975,0.0,,AI fallback: Ollama call failed: <urlopen error [Errno 1] Operation not permitted>,fallback,True

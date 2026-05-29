@@ -2,3 +2,4 @@ pandas
 numpy
 pyyaml
 scikit-learn
+pytest

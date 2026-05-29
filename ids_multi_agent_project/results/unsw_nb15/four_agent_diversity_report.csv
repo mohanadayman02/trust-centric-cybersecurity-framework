@@ -1,0 +1,7 @@
+agent_a,agent_b,agreement_rate,disagreement_rate,agent_a_correct_agent_b_wrong,agent_b_correct_agent_a_wrong,both_wrong,both_correct
+General Traffic Agent,Attack Recall Agent,0.9965505514259341,0.003449448574065977,132,152,15686,66362
+General Traffic Agent,Normal Behavior Agent,0.8545158626050624,0.14548413739493757,7889,4089,11749,58605
+General Traffic Agent,Hard-Case Agent,0.8303697225866006,0.1696302774133994,2306,11660,4178,64188
+Attack Recall Agent,Normal Behavior Agent,0.8557547490647622,0.14424525093523782,7848,4028,11790,58666
+Attack Recall Agent,Hard-Case Agent,0.8293980469319341,0.1706019530680659,2356,11690,4128,64158
+Normal Behavior Agent,Hard-Case Agent,0.7894621775251421,0.2105378224748579,2090,15244,4394,60604

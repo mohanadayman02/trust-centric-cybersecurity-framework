@@ -1,0 +1,4 @@
+Dataset,Best Average Robustness Method,Lowest FNR Increase Method,Smallest Accuracy Degradation Method,Key Finding
+NSL-KDD,Attack Override Trust,AI Trust Auditor,Attack Override Trust,Attack Override Trust leads average robustness; AI Trust Auditor best preserves detection.
+UNSW-NB15,AI Trust Auditor,Attack Override Trust,AI Trust Auditor,AI Trust Auditor leads average robustness; Attack Override Trust best preserves detection.
+CICIDS2017,AI Trust Auditor,AI Trust Auditor,AI Trust Auditor,AI Trust Auditor leads average robustness; AI Trust Auditor best preserves detection.

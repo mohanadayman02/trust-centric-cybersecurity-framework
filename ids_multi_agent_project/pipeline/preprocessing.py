@@ -127,7 +127,7 @@ def build_preprocessing_pipeline(
     if valid_categorical:
         categorical_steps = []
         if handle_missing:
-            categorical_steps.append(("imputer", SimpleImputer(strategy="most_frequent")))
+            categorical_steps.append(("imputer", SimpleImputer(strategy="constant", fill_value="unknown")))
 
         if encode_categorical:
             categorical_steps.append(
@@ -178,7 +178,7 @@ def build_traffic_preprocessing_pipeline(
     if valid_categorical:
         categorical_pipeline = Pipeline(
             steps=[
-                ("imputer", SimpleImputer(strategy="most_frequent")),
+                ("imputer", SimpleImputer(strategy="constant", fill_value="unknown")),
                 (
                     "onehot",
                     OneHotEncoder(handle_unknown="ignore", sparse_output=False),
